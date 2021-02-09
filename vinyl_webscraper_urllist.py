@@ -1,4 +1,6 @@
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+import chromedriver_binary
 from bs4 import BeautifulSoup
 import pandas as pd
 
@@ -6,7 +8,12 @@ import pandas as pd
 # INTIALISING DATA STORAGE
 ##################################################################
 
-driver = webdriver.Safari()
+chrome_options = Options()
+chrome_options.add_argument("--headless")
+chrome_options.add_argument("--disable-extensions")
+chrome_options.add_argument("--disable-gpu")
+chrome_options.add_argument("--no-sandbox")
+driver = webdriver.Chrome(executable_path='/Users/jcmunday/Documents/Computing/webscraper/chromedriver', options=chrome_options)
 url_list = open("urls.txt", "r")
 content = url_list.read()
 urls = content.splitlines()
@@ -22,7 +29,7 @@ try:
     best_price = records_df['Best Price'].tolist()
 except:
     best_price = [0 for _ in range(size)]
-
+print(">>> Fetching Record Prices")
 ##################################################################
 # SCRAPPING DATA
 ##################################################################
@@ -64,6 +71,7 @@ for indx, url in enumerate(urls):
             price_change[indx] = current_price[indx] - best_price[indx]
 price_change = [round(elem, 2) for elem in price_change]
 driver.quit()
+print(">>> Priting Prices")
 
 ##################################################################
 # OUTPUT
