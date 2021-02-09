@@ -71,7 +71,7 @@ for indx, url in enumerate(urls):
             price_change[indx] = current_price[indx] - best_price[indx]
 price_change = [round(elem, 2) for elem in price_change]
 driver.quit()
-print(">>> Priting Prices")
+print(">>> Printing Prices\n")
 
 ##################################################################
 # OUTPUT
