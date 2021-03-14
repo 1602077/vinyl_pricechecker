@@ -86,7 +86,7 @@ for indx, url in enumerate(urls):
             price_change[indx] = 100*(price - previous_price[indx]) / previous_price[indx]
 
 driver.quit()
-price_change = [str(round(elem, 2)) + "%" for elem in price_change]
+price_change = [str(round(elem, 1)) + " %" for elem in price_change]
 
 print(">>> Printing Prices\n")
 
@@ -95,8 +95,12 @@ print(">>> Printing Prices\n")
 ##################################################################
 pd.set_option("display.max_rows", None, "display.max_columns", None, 'display.expand_frame_repr', False)
 df = pd.DataFrame({'Artist': artist, 'Title': title, 'Best Price': best_price, 'Previous Price': previous_price, 'Current Price': current_price,'% Change': price_change})
+
+# left align df
+df.style.set_properties(**{'text-align': 'left'}).set_table_styles([ dict(selector='th', props=[('text-align', 'left')])])
 df.to_csv('records.csv', index=False, encoding='utf-8')
 
+df = df[df['Current Price'] != 0]
 terminal_output = df.sort_values(['% Change'], ascending=True).to_string(index=False)
 print(terminal_output)
 
