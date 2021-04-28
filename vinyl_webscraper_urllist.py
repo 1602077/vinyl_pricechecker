@@ -7,13 +7,13 @@ import pandas as pd
 ##################################################################
 # INTIALISING DATA STORAGE
 ##################################################################
-
 #chrome_options = Options()
 #chrome_options.add_argument("--headless")
 #chrome_options.add_argument("--disable-extensions")
 #chrome_options.add_argument("--disable-gpu")
 #chrome_options.add_argument("--no-sandbox")
 #driver = webdriver.Chrome(executable_path='/Users/jcmunday/Documents/Computing/webscraper/chromedriver', options=chrome_options)
+
 driver = webdriver.Safari()
 url_list = open("urls.txt", "r")
 content = url_list.read()
@@ -72,21 +72,19 @@ for indx, url in enumerate(urls):
         if best_price[indx] == 0:
             best_price[indx] = price
 
-        if price < best_price[indx]:
-            best_price[indx] = price
-            price_change[indx] = -100*(best_price[indx] - price) / price
-
         if price < previous_price[indx]:
             price_change[indx] = -100*(previous_price[indx] - price) / price
+            if price < best_price[indx]:
+                best_price[indx] == price
 
-        if price == current_price:
-            price_change[indx] = 0
+        #if price == current_price:
+        #    price_change[indx] = 0
 
-        if price > previous_price[indx] and previous_price[indx] != 0:
+        if price >= previous_price[indx] and previous_price[indx] != 0:
             price_change[indx] = 100*(price - previous_price[indx]) / previous_price[indx]
 
 driver.quit()
-price_change = [str(round(elem, 1)) + " %" for elem in price_change]
+price_change = [str(round(elem, 1)) for elem in price_change]
 
 print(">>> Printing Prices\n")
 
@@ -94,13 +92,13 @@ print(">>> Printing Prices\n")
 # OUTPUT
 ##################################################################
 pd.set_option("display.max_rows", None, "display.max_columns", None, 'display.expand_frame_repr', False)
-df = pd.DataFrame({'Artist': artist, 'Title': title, 'Best Price': best_price, 'Previous Price': previous_price, 'Current Price': current_price,'% Change': price_change})
+df = pd.DataFrame({'Artist': artist, 'Title': title, 'Best Price': best_price, 'Previous Price': previous_price, 'Current Price': current_price,'Price Change (%)': price_change})
 
 # left align df
 df.style.set_properties(**{'text-align': 'left'}).set_table_styles([ dict(selector='th', props=[('text-align', 'left')])])
 df.to_csv('records.csv', index=False, encoding='utf-8')
 
 df = df[df['Current Price'] != 0]
-terminal_output = df.sort_values(['% Change'], ascending=True).to_string(index=False)
+terminal_output = df.sort_values(['Price Change (%)'], ascending=True).to_string(index=False)
 print(terminal_output)
 
