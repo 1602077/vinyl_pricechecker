@@ -39,8 +39,8 @@ def records_wishlist_scraper(driver, url):
         record_name, _ = record_name.split(' [VINYL]')
 
     # Remove artist name from title for incorrectly listed records
-    if artist[indx] in record_name:
-        record_name = record_name.strip(artist[indx])
+    if artist_name in record_name:
+        record_name = record_name.strip(artist_name)
         if not record_name:
             record_name = "Self Titled"
 
@@ -126,14 +126,11 @@ for indx, url in enumerate(urls):
 
     #TODO: ADJUST TO INCLUDE FUNCTIONAL WEBSCRAPER DEFINED ABOVE, THIS WILL IMPROVE CLARITY OF WHAT IS GOING ON HERE
     #TODO: ADD ANOTHER SECTION TO CODE THAT WOULD KEEP TRACK OF THE HISTORICAL DATA FOR ALL RECORDS IN WISHLIST
-    
-   # if price is not None:
+    artist_name, record_name, price = records_wishlist_scraper(driver, url)
+    if price is not None:
    #     price = price.get_text()
    #     price = price.strip('\n')
    #     price = float(price.strip('£'))
-
-        artist_name, record_name, price = records_wishlist_scraper(driver, url)
-
         artist[indx] = artist_name
         title[indx] = record_name
         current_price[indx] = price
