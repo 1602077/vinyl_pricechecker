@@ -9,7 +9,7 @@ from selenium import webdriver
 from bs4 import BeautifulSoup
 import pandas as pd
 
-def records_wishlist_scraper(driver, url):
+def records_wishlist_scraper(driver, url, price_only=False):
     """
     Webscraper to scrape the Artist Name, Record Title and Current Price for a given record as listed on Amazon
     specified by the url.
@@ -19,7 +19,9 @@ def records_wishlist_scraper(driver, url):
     driver:         Selenium instance of the driver for the browser being used to perform the webscraping
                     e.g. driver = webdriver.Safari()
     url:            Amazon url for a given record whose price you would like to keep track of
-
+    price_only:     Boolean, if True scraper only returns the price for the record as specified in url. This is
+                    useful for records already with historic price data as we already know the artist name,
+                    and record title associated with that given url.
     returns:
     ---------------------------------------------------------------------------------------------------------
     artist_name:    Name of artist for the record specified by the input url
@@ -51,7 +53,7 @@ def records_wishlist_scraper(driver, url):
         price = price.strip('\n')
         price = float(price.strip('£'))
 
-    return [artist_name, record_name, price]
+    return [artist_name, record_name, price] if price_only=False else price
 
 ##################################################################
 # USING CHROME INSTEAD OF SAFARI
@@ -115,7 +117,7 @@ for indx, url in enumerate(urls):
     if price is not None:
 
         current_price[indx] = price
-        price_change[indx] = price - previous_price[indx]
+        price_change[indx] = round(price - previous_price[indx], 2)
         
         if best_price[indx] == 0:
             best_price[indx] = price
@@ -125,7 +127,6 @@ for indx, url in enumerate(urls):
 
 
 driver.quit()
-price_change = [str(round(elem, 2)) for elem in price_change]
 
 print(">>> Printing Prices\n")
 
