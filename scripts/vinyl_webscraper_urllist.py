@@ -10,6 +10,10 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import pdb
 
+
+pd.set_option("display.max_rows", None, "display.max_columns", None, 'display.expand_frame_repr', False)
+
+
 def records_wishlist_scraper(driver, url, price_only=False):
     """
     Webscraper to scrape the Artist Name, Record Title and Current Price for a given record as listed on Amazon
@@ -67,7 +71,6 @@ def main():
     """
 
     """
-    pd.set_option("display.max_rows", None, "display.max_columns", None, 'display.expand_frame_repr', False)
 
     # To use chrome instead import the above libraries and download the chromedriver file for your os
     # below provides some options that you may want to consider using, headless is a particularly useful
@@ -106,19 +109,20 @@ def main():
         records_df = pd.DataFrame(columns=column_names)
 
     ##################################################################
-    # SCRAPPING DATA
+    # SCRAPPING DATA (HISTORICAL PRICING)
     ##################################################################
-    print("\n>>> Fetching Record Prices")
 
     # find any new records that have been added to urls.txt
     existing_records = records_df['url'].tolist()
     new_records = [url for url in input_urls if url not in existing_records]
-    print(f"{len(new_records)} new record in wishlist!")
 
-    # get current price of existing records in the dataframe
+    print(f"{len(new_records)} new record(s) in wishlist!")
+    #print("\n>>> Fetching Record Prices")
+
+    # get the current price of existing records in the dataframe and add as a new col
     records_df[str(today)] = records_df['url'].apply(lambda url:records_wishlist_scraper(driver, url, price_only=True))
 
-    # add new recprds into the historic price dataframe
+    # add new records into the historic price dataframe as new rows
     for url in new_records:
         artist_name, record_name, price = records_wishlist_scraper(driver, url)
         df_tmp = pd.DataFrame({'url': url, 'Artist Name': artist_name, 'Record Title': record_name, str(today): price}, index=[0])
@@ -132,12 +136,8 @@ def main():
     # OUTPUT
     ##################################################################
     #print(">>> Printing Prices\n")
-    #pd.set_option("display.max_rows", None, "display.max_columns", None, 'display.expand_frame_repr', False)
-    #df = pd.DataFrame({'Artist': artist, 'Title': title, 'Best Price': best_price, 'Previous Price': previous_price, 'Current Price': current_price,'Price Change (£)': price_change})
 
-    # left align df
     #df.style.set_properties(**{'text-align': 'left'}).set_table_styles([ dict(selector='th', props=[('text-align', 'left')])])
-    #df.to_csv('../output_data/records.csv', index=False, encoding='utf-8')
 
     #df = df[df['Current Price'] != 0]
     #terminal_output = df.sort_values(['Artist'], ascending=True).to_string(index=False)

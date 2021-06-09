@@ -29,7 +29,7 @@ If you are using your scrapper in chrome you may want to consider adding the fol
 
 ### TODOS
 - [x] Adjust scrapping function to have a price only option
-- [ ] Implement historical price tracking data frame
+- [x] Implement historical price tracking data frame
 - [ ] Develop helper functions to easily remove records from wishlist when purchased, ideally through the user specifying the record title and the associated url being deleted
 - [ ] Adding a plotter helper function so that user's can input several records price to track and plot historical data
 - [ ] Update readme to reflect updates to scripts functionality, this should include all the function doc strings
