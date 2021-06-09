@@ -54,7 +54,7 @@ def records_wishlist_scraper(driver, url, price_only=False):
         price = price.strip('\n')
         price = float(price.strip('£'))
 
-    return [artist_name, record_name, price] if price_only=False else price
+    return [artist_name, record_name, price] if price_only==False else price
 
 ##################################################################
 # USING CHROME INSTEAD OF SAFARI
@@ -62,121 +62,95 @@ def records_wishlist_scraper(driver, url, price_only=False):
 #from selenium.webdriver.chrome.options import Options
 #import chromedriver_binary
 
-# To use chrome instead import the above libraries and download the chromedriver file for your os
-# below provides some options that you may want to consider using, headless is a particularly useful
-# one as it runs the browers without a gui.
 
-#chrome_options = Options()
-#chrome_options.add_argument("--headless")
-#chrome_options.add_argument("--disable-extensions")
-#chrome_options.add_argument("--disable-gpu")
-#chrome_options.add_argument("--no-sandbox")
+def main():
+    """
 
-#driver = webdriver.Chrome(executable_path='/filepath_to_chromedriver/chromedriver', options=chrome_options)
+    """
+    pd.set_option("display.max_rows", None, "display.max_columns", None, 'display.expand_frame_repr', False)
 
-# comment below if you decide to run in chrome
-driver = webdriver.Safari()
+    # To use chrome instead import the above libraries and download the chromedriver file for your os
+    # below provides some options that you may want to consider using, headless is a particularly useful
+    # one as it runs the browers without a gui.
+    #chrome_options = Options()
+    #chrome_options.add_argument("--headless")
+    #chrome_options.add_argument("--disable-extensions")
+    #chrome_options.add_argument("--disable-gpu")
+    #chrome_options.add_argument("--no-sandbox")
 
-# import list of amazon urls for records in wishlist and convert to a python list
-url_list = open("../input_data/urls.txt", "r")
-#content = url_list.read()
-input_urls = url_list.read().splitlines()
+    #driver = webdriver.Chrome(executable_path='/filepath_to_chromedriver/chromedriver', options=chrome_options)
 
-##################################################################
-# INTIALISING DATA STORAGE
-##################################################################
-# Intialise a series of blank arrays of size urls.txt to store results in as we iterate through all records
+    # comment below if you decide to run in chrome
+    driver = webdriver.Safari()
 
-#size = len(urls)
-#title = [0 for _ in range(size)]
-#artist = [0 for _ in range(size)]
-#current_price = [0 for _ in range(size)]
-#price_change = [0 for _ in range(size)]
-#best_price = [0 for _ in range(size)]
-#previous_price = [0 for _ in range(size)]
+    # import list of amazon urls for records in wishlist and convert to a python list
+    #url_list = open("../input_data/urls.txt", "r")
+    url_list = open("../input_data/urls_test.txt", "r")
+    #content = url_list.read()
+    input_urls = url_list.read().splitlines()
 
-#try:
-#    records_df = pd.read_csv('../output_data/records.csv')
-#    best_price = records_df['Best Price'].tolist()
-#    previous_price = records_df['Current Price'].tolist()
-#    assert len(best_price) == len(title), "Mismatched number of records in url.txt to that stored in records.csv"
-#except:
-#    best_price = [0 for _ in range(size)]
-#    previous_price = [0 for _ in range(size)]
+    # Get current datetime
+    today = pd.to_datetime("today")
 
-# Get current datetime
-today = pd.to_datetime("today")
+    ##################################################################
+    # CREATE PANDAS DATAFRAME
+    ##################################################################
+    try: 
+        records_df = pd.read_csv('../output_data/records_history.csv')
+    except:
+        # if there is no records df already initiate an empty pd df
+        # only executes on the first run of the code, subseqeunt runs will add price columns to
+        # keep track of history of price changes
+        # datetime column will hold the price of a given record for current date
+        column_names = ['url', 'Artist Name', 'Record Title', str(today)]
+        records_df = pd.DataFrame(columns=column_names)
 
-try: 
-    records_df = pd.read_csv('../output_data/records_history.cv')
-except:
-    # if there is no records df already initiate an empty pd df
-    # only executes on the first run of the code, subseqeunt runs will add price columns to
-    # keep track of history of price changes
-    # datetime column will hold the price of a given record for current date
-    column_names = ['url', 'Artist Name', 'Record Title', str(today)]
-    records_df = pd.Dataframe(columns=column_names)
-    
-print("\n>>> Fetching Record Prices")
-##################################################################
-# SCRAPPING DATA
-##################################################################
-# find any new records that have been added to urls.txt
-existing_records = records_df['url'].tolist()
-new_records = intput_urls - exisiting records
+    ##################################################################
+    # SCRAPPING DATA
+    ##################################################################
+    print("\n>>> Fetching Record Prices")
 
-# get current price of existing records in the datafram
-df[str(today)] = df.apply(lambda row: records_wishlist_scraper(driver, row.url, price_only=True))
+    # find any new records that have been added to urls.txt
+    existing_records = records_df['url'].tolist()
+    new_records = [url for url in input_urls if url not in existing_records]
+    print(f"{len(new_records)} new record in wishlist!")
 
-# add new recprds into the historic price dataframe
-for url in new_records:
-    artist_name, record_name, price = records_wishlist_scraper(driver, url)
-    records_df.append({'url': url, 'Artist Name': artist_name, 'Record Title': record_name, str(today): price}, ignore_index=True)
+    # get current price of existing records in the dataframe
+    records_df[str(today)] = records_df['url'].apply(lambda url:records_wishlist_scraper(driver, url, price_only=True))
 
-driver.quit()
+    # add new recprds into the historic price dataframe
+    for url in new_records:
+        artist_name, record_name, price = records_wishlist_scraper(driver, url)
+        df_tmp = pd.DataFrame({'url': url, 'Artist Name': artist_name, 'Record Title': record_name, str(today): price}, index=[0])
+        records_df = records_df.append(df_tmp, ignore_index=True)
 
-records_df.to_csv('../output_data/records_history.csv', index=False, encoding='utf-8')
-#for indx, url in enumerate(urls):
+    driver.quit()
 
-    #TODO: ADJUST TO INCLUDE FUNCTIONAL WEBSCRAPER DEFINED ABOVE, THIS WILL IMPROVE CLARITY OF WHAT IS GOING ON HERE
-    #TODO: ADD ANOTHER SECTION TO CODE THAT WOULD KEEP TRACK OF THE HISTORICAL DATA FOR ALL RECORDS IN WISHLIST
-    #artist_name, record_name, price = records_wishlist_scraper(driver, url)
-    #artist[indx] = artist_name
-    #title[indx] = record_name
-    
-    #if price is not None:
+    records_df.to_csv('../output_data/records_history.csv', index=False, encoding='utf-8')
 
-     #   current_price[indx] = price
-     #   price_change[indx] = round(price - previous_price[indx], 2)
-        
-     #   if best_price[indx] == 0:
-     #       best_price[indx] = price
+    ##################################################################
+    # OUTPUT
+    ##################################################################
+    #print(">>> Printing Prices\n")
+    #pd.set_option("display.max_rows", None, "display.max_columns", None, 'display.expand_frame_repr', False)
+    #df = pd.DataFrame({'Artist': artist, 'Title': title, 'Best Price': best_price, 'Previous Price': previous_price, 'Current Price': current_price,'Price Change (£)': price_change})
 
-     #   if price < best_price[indx]:
-     #       best_price[indx] = price
+    # left align df
+    #df.style.set_properties(**{'text-align': 'left'}).set_table_styles([ dict(selector='th', props=[('text-align', 'left')])])
+    #df.to_csv('../output_data/records.csv', index=False, encoding='utf-8')
 
+    #df = df[df['Current Price'] != 0]
+    #terminal_output = df.sort_values(['Artist'], ascending=True).to_string(index=False)
+    #print(terminal_output)
 
-print(">>> Printing Prices\n")
+    #Calculating some high level stats about wishlist records
+    #num_records = len(input_urls)
+    # best_price = record_df[''].sum()
+    #current_price = records_df[str(today)].sum()
+    #print(f"Number of records in wishlist: {num_records}.")
+    #print(f"Best cost to buy all records in wishlist: {best_price}.")
+    #print(f"Current cost to buy all records in wishlist: {current_price}.")
 
-##################################################################
-# OUTPUT
-##################################################################
-#pd.set_option("display.max_rows", None, "display.max_columns", None, 'display.expand_frame_repr', False)
-#df = pd.DataFrame({'Artist': artist, 'Title': title, 'Best Price': best_price, 'Previous Price': previous_price, 'Current Price': current_price,'Price Change (£)': price_change})
-
-# left align df
-#df.style.set_properties(**{'text-align': 'left'}).set_table_styles([ dict(selector='th', props=[('text-align', 'left')])])
-#df.to_csv('../output_data/records.csv', index=False, encoding='utf-8')
-
-#df = df[df['Current Price'] != 0]
-#terminal_output = df.sort_values(['Artist'], ascending=True).to_string(index=False)
-#print(terminal_output)
-
-#Calculating some high level stats about wishlist records
-num_records = len(input_urls)
-# best_price = record_df[''].sum()
-current_price = record_df[str(today)].sum()
-print(f"Number of records in wishlist: {num_records}.")
-#print(f"Best cost to buy all records in wishlist: {best_price}.")
-print(f"Current cost to buy all records in wishlist: {current_cost}.")
+if __name__ == "__main__":
+    main()
 
