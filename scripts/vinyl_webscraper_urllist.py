@@ -70,28 +70,29 @@ def records_wishlist_scraper(driver, url, price_only=False):
 #chrome_options.add_argument("--disable-extensions")
 #chrome_options.add_argument("--disable-gpu")
 #chrome_options.add_argument("--no-sandbox")
-#driver = webdriver.Chrome(executable_path='/Users/jcmunday/Documents/Computing/webscraper/chromedriver', options=chrome_options)
 
-#uncomment below if you decide to run in chrome
+#driver = webdriver.Chrome(executable_path='/filepath_to_chromedriver/chromedriver', options=chrome_options)
+
+# comment below if you decide to run in chrome
 driver = webdriver.Safari()
 
-# Import list of amazon url for records in wishlist and convert to a python list
+# import list of amazon urls for records in wishlist and convert to a python list
 url_list = open("../input_data/urls.txt", "r")
 content = url_list.read()
-urls = content.splitlines()
+input_urls = content.splitlines()
 
 ##################################################################
 # INTIALISING DATA STORAGE
 ##################################################################
 # Intialise a series of blank arrays of size urls.txt to store results in as we iterate through all records
 
-size = len(urls)
-title = [0 for _ in range(size)]
-artist = [0 for _ in range(size)]
-current_price = [0 for _ in range(size)]
-price_change = [0 for _ in range(size)]
-best_price = [0 for _ in range(size)]
-previous_price = [0 for _ in range(size)]
+#size = len(urls)
+#title = [0 for _ in range(size)]
+#artist = [0 for _ in range(size)]
+#current_price = [0 for _ in range(size)]
+#price_change = [0 for _ in range(size)]
+#best_price = [0 for _ in range(size)]
+#previous_price = [0 for _ in range(size)]
 
 #try:
 #    records_df = pd.read_csv('../output_data/records.csv')
@@ -121,7 +122,7 @@ print("\n>>> Fetching Record Prices")
 ##################################################################
 # find any new records that have been added to urls.txt
 existing_records = records_df['url'].tolist()
-new_records = urls - exisiting records
+new_records = intput_urls - exisiting records
 
 # get current price of existing records in the datafram
 df[str(today)] = df.apply(lambda row: records_wishlist_scraper(driver, row.url, price_only=True))
@@ -168,4 +169,12 @@ df.to_csv('../output_data/records.csv', index=False, encoding='utf-8')
 df = df[df['Current Price'] != 0]
 terminal_output = df.sort_values(['Artist'], ascending=True).to_string(index=False)
 print(terminal_output)
+
+#Calculating some high level stats about wishlist records
+num_records = len(input_urls)
+# best_price = df[''].sum()
+current_price = df[str(today)].sum()
+print(f"Number of records in wishlist: {num_records}.")
+#print(f"Best cost to buy all records in wishlist: {best_price}.")
+print(f"Current cost to buy all records in wishlist: {current_cost}.")
 
