@@ -8,6 +8,7 @@
 from selenium import webdriver
 from bs4 import BeautifulSoup
 import pandas as pd
+import pdb
 
 def records_wishlist_scraper(driver, url, price_only=False):
     """
@@ -15,7 +16,7 @@ def records_wishlist_scraper(driver, url, price_only=False):
     specified by the url.
 
     params:
-    ---------------------------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------------
     driver:         Selenium instance of the driver for the browser being used to perform the webscraping
                     e.g. driver = webdriver.Safari()
     url:            Amazon url for a given record whose price you would like to keep track of
@@ -23,7 +24,7 @@ def records_wishlist_scraper(driver, url, price_only=False):
                     useful for records already with historic price data as we already know the artist name,
                     and record title associated with that given url.
     returns:
-    ---------------------------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------------
     artist_name:    Name of artist for the record specified by the input url
     record_name:    Title of record for the input url
     price:          Current price of record_title
@@ -36,11 +37,11 @@ def records_wishlist_scraper(driver, url, price_only=False):
     artist_name  = str(artist.split('\n')[1])
 
     record_name = soup.find('title').get_text()
-    # It is quite common for amazon to add [VINYL] to the title of records, if this is the case.
+    # strip [VINYL] suffixes that amazon adds to records
     if "[VINYL]" in record_name:
         record_name, _ = record_name.split(' [VINYL]')
 
-    # Remove artist name from title for incorrectly listed records
+    # Remove artist name from title for improperly listed records
     if artist_name in record_name:
         record_name = record_name.strip(artist_name)
         if not record_name:
@@ -78,8 +79,8 @@ driver = webdriver.Safari()
 
 # import list of amazon urls for records in wishlist and convert to a python list
 url_list = open("../input_data/urls.txt", "r")
-content = url_list.read()
-input_urls = content.splitlines()
+#content = url_list.read()
+input_urls = url_list.read().splitlines()
 
 ##################################################################
 # INTIALISING DATA STORAGE
@@ -107,7 +108,7 @@ input_urls = content.splitlines()
 today = pd.to_datetime("today")
 
 try: 
-    records_df = pd.read_csv('../output_data/records.cv')
+    records_df = pd.read_csv('../output_data/records_history.cv')
 except:
     # if there is no records df already initiate an empty pd df
     # only executes on the first run of the code, subseqeunt runs will add price columns to
@@ -131,7 +132,10 @@ df[str(today)] = df.apply(lambda row: records_wishlist_scraper(driver, row.url, 
 for url in new_records:
     artist_name, record_name, price = records_wishlist_scraper(driver, url)
     records_df.append({'url': url, 'Artist Name': artist_name, 'Record Title': record_name, str(today): price}, ignore_index=True)
-    
+
+driver.quit()
+
+records_df.to_csv('../output_data/records_history.csv', index=False, encoding='utf-8')
 #for indx, url in enumerate(urls):
 
     #TODO: ADJUST TO INCLUDE FUNCTIONAL WEBSCRAPER DEFINED ABOVE, THIS WILL IMPROVE CLARITY OF WHAT IS GOING ON HERE
@@ -152,28 +156,26 @@ for url in new_records:
      #       best_price[indx] = price
 
 
-driver.quit()
-
 print(">>> Printing Prices\n")
 
 ##################################################################
 # OUTPUT
 ##################################################################
-pd.set_option("display.max_rows", None, "display.max_columns", None, 'display.expand_frame_repr', False)
-df = pd.DataFrame({'Artist': artist, 'Title': title, 'Best Price': best_price, 'Previous Price': previous_price, 'Current Price': current_price,'Price Change (£)': price_change})
+#pd.set_option("display.max_rows", None, "display.max_columns", None, 'display.expand_frame_repr', False)
+#df = pd.DataFrame({'Artist': artist, 'Title': title, 'Best Price': best_price, 'Previous Price': previous_price, 'Current Price': current_price,'Price Change (£)': price_change})
 
 # left align df
-df.style.set_properties(**{'text-align': 'left'}).set_table_styles([ dict(selector='th', props=[('text-align', 'left')])])
-df.to_csv('../output_data/records.csv', index=False, encoding='utf-8')
+#df.style.set_properties(**{'text-align': 'left'}).set_table_styles([ dict(selector='th', props=[('text-align', 'left')])])
+#df.to_csv('../output_data/records.csv', index=False, encoding='utf-8')
 
-df = df[df['Current Price'] != 0]
-terminal_output = df.sort_values(['Artist'], ascending=True).to_string(index=False)
-print(terminal_output)
+#df = df[df['Current Price'] != 0]
+#terminal_output = df.sort_values(['Artist'], ascending=True).to_string(index=False)
+#print(terminal_output)
 
 #Calculating some high level stats about wishlist records
 num_records = len(input_urls)
-# best_price = df[''].sum()
-current_price = df[str(today)].sum()
+# best_price = record_df[''].sum()
+current_price = record_df[str(today)].sum()
 print(f"Number of records in wishlist: {num_records}.")
 #print(f"Best cost to buy all records in wishlist: {best_price}.")
 print(f"Current cost to buy all records in wishlist: {current_cost}.")
