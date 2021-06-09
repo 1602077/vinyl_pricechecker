@@ -93,37 +93,62 @@ price_change = [0 for _ in range(size)]
 best_price = [0 for _ in range(size)]
 previous_price = [0 for _ in range(size)]
 
-try:
-    records_df = pd.read_csv('../output_data/records.csv')
-    best_price = records_df['Best Price'].tolist()
-    previous_price = records_df['Current Price'].tolist()
-    assert len(best_price) == len(title), "Mismatched number of records in url.txt to that stored in records.csv"
-except:
-    best_price = [0 for _ in range(size)]
-    previous_price = [0 for _ in range(size)]
+#try:
+#    records_df = pd.read_csv('../output_data/records.csv')
+#    best_price = records_df['Best Price'].tolist()
+#    previous_price = records_df['Current Price'].tolist()
+#    assert len(best_price) == len(title), "Mismatched number of records in url.txt to that stored in records.csv"
+#except:
+#    best_price = [0 for _ in range(size)]
+#    previous_price = [0 for _ in range(size)]
 
+# Get current datetime
+today = pd.to_datetime("today")
+
+try: 
+    records_df = pd.read_csv('../output_data/records.cv')
+except:
+    # if there is no records df already initiate an empty pd df
+    # only executes on the first run of the code, subseqeunt runs will add price columns to
+    # keep track of history of price changes
+    # datetime column will hold the price of a given record for current date
+    column_names = ['url', 'Artist Name', 'Record Title', str(today)]
+    records_df = pd.Dataframe(columns=column_names)
+    
 print("\n>>> Fetching Record Prices")
 ##################################################################
 # SCRAPPING DATA
 ##################################################################
-for indx, url in enumerate(urls):
+# find any new records that have been added to urls.txt
+existing_records = records_df['url'].tolist()
+new_records = urls - exisiting records
+
+# get current price of existing records in the datafram
+df[str(today)] = df.apply(lambda row: records_wishlist_scraper(driver, row.url, price_only=True))
+
+# add new recprds into the historic price dataframe
+for url in new_records:
+    artist_name, record_name, price = records_wishlist_scraper(driver, url)
+    records_df.append({'url': url, 'Artist Name': artist_name, 'Record Title': record_name, str(today): price}, ignore_index=True)
+    
+#for indx, url in enumerate(urls):
 
     #TODO: ADJUST TO INCLUDE FUNCTIONAL WEBSCRAPER DEFINED ABOVE, THIS WILL IMPROVE CLARITY OF WHAT IS GOING ON HERE
     #TODO: ADD ANOTHER SECTION TO CODE THAT WOULD KEEP TRACK OF THE HISTORICAL DATA FOR ALL RECORDS IN WISHLIST
-    artist_name, record_name, price = records_wishlist_scraper(driver, url)
-    artist[indx] = artist_name
-    title[indx] = record_name
+    #artist_name, record_name, price = records_wishlist_scraper(driver, url)
+    #artist[indx] = artist_name
+    #title[indx] = record_name
+    
+    #if price is not None:
 
-    if price is not None:
-
-        current_price[indx] = price
-        price_change[indx] = round(price - previous_price[indx], 2)
+     #   current_price[indx] = price
+     #   price_change[indx] = round(price - previous_price[indx], 2)
         
-        if best_price[indx] == 0:
-            best_price[indx] = price
+     #   if best_price[indx] == 0:
+     #       best_price[indx] = price
 
-        if price < best_price[indx]:
-            best_price[indx] = price
+     #   if price < best_price[indx]:
+     #       best_price[indx] = price
 
 
 driver.quit()
