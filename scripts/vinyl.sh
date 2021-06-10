@@ -3,6 +3,6 @@
 function vinyl() {
     cd ~/Documents/Computing/webscraper/scripts/
     conda activate web_s
-    python vinyl_webscraper_urllist.py
+    python3 webscraper.py
     osascript -e 'quit app "Chrome"'
 }

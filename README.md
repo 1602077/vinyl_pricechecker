@@ -1,6 +1,6 @@
 # vinyl_pricechecker
 
-```vinyl_webscraper_urllist.py``` is a python based web scraper which uses BeautifulSoup and Selenium to scrape the artist name, record title and price of records list on amazon as specified by my wishlist (```url.txt```) - an input file which contains an amazon url per line. Also included is a simple bash script which can be used to automate the price checking in a unix shell.
+```webscraper.py``` is a python based web scraper which uses BeautifulSoup and Selenium to scrape the artist name, record title and price of records list on amazon as specified by my wishlist (```url.txt```) - an input file which contains an amazon url per line. Also included is a simple bash script which can be used to automate the price checking in a unix shell.
 
 # Setting up the environment
 Setting up the environment with the required libraries can be easily achieved using ```conda``` as follows:
@@ -21,7 +21,7 @@ Example bash script included in ```scripts/vinyl.sh```:
 function vinyl() {
     cd ~/Documents/Computing/webscraper/scripts/
     conda activate web_s
-    python vinyl_webscraper_urllist.py
+    python3 webscraper.py
     osascript -e 'quit app "Chrome"'
 }
 ```
@@ -31,6 +31,6 @@ If you are using the webscraper in chrome you may want to consider adding the fo
 - [x] Adjust scrapping function to have a price only option
 - [x] Implement historical price tracking data frame
 - [ ] Develop helper functions to easily remove records from wishlist when purchased, ideally through the user specifying the record title and the associated url being deleted
-- [ ] Output a second df with the best price previous and current price stats
+- [x] Output a second df with the best price previous and current price stats
 - [ ] Adding a plotter helper function so that user's can input several records price to track and plot historical data
 - [ ] Update readme to reflect updates to scripts functionality, this should include all the function doc strings
