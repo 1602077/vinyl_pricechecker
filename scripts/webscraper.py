@@ -4,7 +4,7 @@
 # webscraper.py
 # Author: Jack Munday
 #
-# Web scraper implementation using selenium and BeautifulSoup to automate the price checking of records in my amazon wishlist. Input file "urls.txt" should be a list of amazon urls with one url per line. Script then cycles through all urls and get the current artist name, record title and price. This is outputted to "records_history.csv" which contains a unique column of prices for all records in the wish list every time the script is ran. Summary statistics of all the historic data are then outputted to "records_summary.csv" containing the best price, current and previous prices from when the script was last ran along with the price change (difference between current and previous prices.
+# Web scraper implementation using selenium and BeautifulSoup to automate the price checking of records in my amazon wishlist. Input file "urls.txt" should be a list of amazon urls with one url per line. Script then cycles through all urls and get the current artist name, record title and price. This is outputted to "records_history.csv" which contains a unique column of prices for all records in the wish list every time the script is ran. Summary statistics of all the historic data are then outputted to "records_summary.csv" containing the best price, current and average prices.
 
 
 from selenium import webdriver
@@ -18,7 +18,7 @@ pd.set_option("display.max_rows", None, "display.max_columns", None, 'display.ex
 
 def records_wishlist_scraper(driver, url, price_only=False):
     """
-    Web scraper to scrape the Artist Name, Record Title and Current Price for a given record as listed on Amazon
+    Web scraper to scrape the artist name, record title and current price for a given record as listed on amazon
     specified by the url.
 
     params:
@@ -54,7 +54,6 @@ def records_wishlist_scraper(driver, url, price_only=False):
             record_name = "Self Titled"
 
     price = soup.find('span', id="price_inside_buybox")
-    
     if price is not None:
         price = price.get_text()
         price = price.strip('\n')
@@ -74,6 +73,9 @@ def main():
 
     """
 
+    # comment below if you decide to run in chrome
+    driver = webdriver.Safari()
+
     # To use chrome instead import the above libraries and download the chromedriver file for your os
     # below provides some options that you may want to consider using, headless is a particularly useful
     # one as it runs the browsers without a gui.
@@ -82,11 +84,7 @@ def main():
     #chrome_options.add_argument("--disable-extensions")
     #chrome_options.add_argument("--disable-gpu")
     #chrome_options.add_argument("--no-sandbox")
-
     #driver = webdriver.Chrome(executable_path='/filepath_to_chromedriver/chromedriver', options=chrome_options)
-
-    # comment below if you decide to run in chrome
-    driver = webdriver.Safari()
 
     # import list of amazon urls for records in wishlist and convert to a python list
     #url_list = open("../input_data/urls.txt", "r")
@@ -112,18 +110,16 @@ def main():
     ##################################################################
     # SCRAPPING DATA (HISTORICAL PRICING)
     ##################################################################
-
     # find any new records that have been added to urls.txt
     existing_records = records_df['url'].tolist()
     new_records = [url for url in input_urls if url not in existing_records]
 
     print(f"{len(new_records)} new record(s) in wishlist!")
-    #print("\n>>> Fetching Record Prices")
 
     # get the current price of existing records in the dataframe and add as a new col
     records_df[str(today)] = records_df['url'].apply(lambda url:records_wishlist_scraper(driver, url, price_only=True))
 
-    # add new records into the historic price dataframe as new rows
+    # add new records into the historic price dataframe and append as a new row
     for url in new_records:
         artist_name, record_name, price = records_wishlist_scraper(driver, url)
         df_tmp = pd.DataFrame({'url': url, 'Artist Name': artist_name, 'Record Title': record_name, str(today): price}, index=[0])
@@ -140,22 +136,23 @@ def main():
                 'Artist Name':      records_df['Artist Name'],
                 'Record Title':     records_df['Record Title'],
                 'Best Price':       records_df.min(axis=1, numeric_only=True),
-                'Previous Price':   records_df[records_df.columns[-2]],
+                'Average Price':    records_df.mean(axis=1, numeric_only=True).round(2),
                 'Current Price':    records_df[records_df.columns[-1]]
      })
-    summary_df['Price Change'] = summary_df['Current Price'] - summary_df['Previous Price']
+
     num_records = summary_df.shape[0]
     best_price = summary_df['Best Price'].sum()
     current_price = summary_df['Current Price'].sum()
 
     #Calculating some high level stats about wishlist records
+    print()
     print(f"Number of records in wishlist: {num_records}.")
     print(f"Best cost to buy all records in wishlist: {best_price}.")
     print(f"Current cost to buy all records in wishlist: {current_price}.")
     print()
      
     summary_df.style.set_properties(**{'text-align': 'left'}).set_table_styles([ dict(selector='th', props=[('text-align', 'left')])])
-    summary_df = summary_df.sort_values(['Artist Name'], ascending=True)
+    summary_df = summary_df.sort_values(['Artist Name'], ascending=True).reset_index(drop=True)
     print(summary_df)
 
     return summary_df.to_csv('../output_data/records_summary .csv', index=False, encoding='utf-8')
