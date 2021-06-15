@@ -37,8 +37,8 @@ Full documentation on the ```crontab``` syntax can be found [here](https://man7.
 
 ### TODOS
 - [ ] Helper Functions
- - [ ] Remove record from wishlist (ideally by user inputing record title and this is removed from all output files and the url from the input file)
- - [ ] Plotting function - allow a user to specify one or more records and plot the history of their prices
+  - [ ] Remove record from wishlist (ideally by user inputing record title and this is removed from all output files and the url from the input file)
+  - [ ] Plotting function - allow a user to specify one or more records and plot the history of their prices
 - [ ] Update readme to reflect updates to scripts functionality, this should include all the function doc strings
 - [ ] write a ```launchd``` plist to overcome issues with running cron and selenium
 - [ ] document as to why you can't just run ```vinyl``` in ```cron```'
