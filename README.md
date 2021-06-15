@@ -27,10 +27,18 @@ function vinyl() {
 ```
 If you are using the webscraper in chrome you may want to consider adding the following ```osascript -e 'quit app "Chrome"'```, which will ensure that all chrome threads are terminated after the script has finished executing.
 
+Adding this script to my shell profile file (```.zshrc``` in my case) with ```source ~/viny.sh``` allows me to run my script by simply typing ```vinyl``` into a terminal shell. If you are running a unix based system then this can be scheduled using ```crontab```.
+
+Type ```crontab -e``` to open the crontab editor adding the following will cue the script to run at 6AM every day:
+```
+* 6 * * * export DISPLAY:=0; cd ~/.scripts; bash vinyl.sh
+```
+Full documentation on the ```crontab``` syntax can be found [here](https://man7.org/linux/man-pages/man5/crontab.5.html), while [crontab.guru](https://crontab.guru) is a useful tool for generating ```cron``` expressions if you are new to the tool. 
+
 ### TODOS
-- [x] Adjust scrapping function to have a price only option
-- [x] Implement historical price tracking data frame
-- [ ] Develop helper functions to easily remove records from wishlist when purchased, ideally through the user specifying the record title and the associated url being deleted
-- [x] Output a second df with the best price previous and current price stats
-- [ ] Adding a plotter helper function so that user's can input several records price to track and plot historical data
+- [ ] Helper Functions
+ - [ ] Remove record from wishlist (ideally by user inputing record title and this is removed from all output files and the url from the input file)
+ - [ ] Plotting function - allow a user to specify one or more records and plot the history of their prices
 - [ ] Update readme to reflect updates to scripts functionality, this should include all the function doc strings
+- [ ] write a ```launchd``` plist to overcome issues with running cron and selenium
+- [ ] document as to why you can't just run ```vinyl``` in ```cron```'
