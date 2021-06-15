@@ -41,4 +41,4 @@ Full documentation on the ```crontab``` syntax can be found [here](https://man7.
   - [ ] Plotting function - allow a user to specify one or more records and plot the history of their prices
 - [ ] Update readme to reflect updates to scripts functionality, this should include all the function doc strings
 - [ ] write a ```launchd``` plist to overcome issues with running cron and selenium
-- [ ] document as to why you can't just run ```vinyl``` in ```cron```'
+- [ ] document as to why you can't just run ```vinyl``` in ```cron```
