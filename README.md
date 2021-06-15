@@ -2,7 +2,7 @@
 
 ```webscraper.py``` is a python based web scraper which uses BeautifulSoup and Selenium to scrape the artist name, record title and price of records list on amazon as specified by my wishlist (```url.txt```) - an input file which contains an amazon url per line. Also included is a simple bash script which can be used to automate the price checking in a unix shell.
 
-# Setting up the environment
+## Setting up the environment
 Setting up the environment with the required libraries can be easily achieved using ```conda``` as follows:
 ```
 conda env create --name web_s
@@ -15,7 +15,33 @@ If you do not have anaconda installed, you can install a lightweight distributio
 ```brew install --cask anaconda```.
 Alternatively, you may prefer to use the standard python ```venv``` along with ```pip```.
 
-# Running as a bash script
+
+## Web scraping function
+The main body of the scraping is performed by ```records_wishlist_scraper```, below I provide it's doc string which gives a brief overview of how it works.
+```
+records_wishlist_scraper(driver, url, price_only=False)
+
+Web scraper to scrape the artist name, record title and current price for a given record as listed on amazon
+specified by the url.
+params:
+------------------------------------------------------------------------------------------------------------
+driver:         Selenium instance of the driver for the browser being used to perform the web scraping
+                e.g. driver = webdriver.Safari()
+url:            Amazon url for a given record whose price you would like to keep track of
+price_only:     Boolean, if True scraper only returns the price for the record as specified in url. This is
+                useful for records already with historic price data as we already know the artist name,
+                and record title associated with that given url.
+returns:
+------------------------------------------------------------------------------------------------------------
+artist_name:    Name of artist for the record specified by the input url
+record_name:    Title of record for the input url
+price:          Current price of record_title
+
+```
+
+## Running as a bash script
+This is likely a script which you would like to run fairly frequent to get an accurate reflection of pricing. We can greatly simplify the process using a bash script and then automate this to run at a set time or frequency using a job scheduler.
+
 Example bash script included in ```scripts/vinyl.sh```:
 ```
 function vinyl() {
@@ -37,8 +63,8 @@ Full documentation on the ```crontab``` syntax can be found [here](https://man7.
 
 ### TODOS
 - [ ] Helper Functions
-  - [ ] Remove record from wishlist (ideally by user inputing record title and this is removed from all output files and the url from the input file)
-  - [ ] Plotting function - allow a user to specify one or more records and plot the history of their prices
+  - [ ] Remove record from wishlist func (ideally by user inputing record title and this is removed from all output files and the url from the input file)
+  - [ ] Plotting func - allow a user to specify one or more records and plot the history of their prices
 - [ ] Update readme to reflect updates to scripts functionality, this should include all the function doc strings
 - [ ] write a ```launchd``` plist to overcome issues with running cron and selenium
 - [ ] document as to why you can't just run ```vinyl``` in ```cron```
