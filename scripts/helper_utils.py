@@ -60,5 +60,31 @@ def remove_record(record_title):
     return 1
 
 
+def main():
+
+    function_type = input("Would you like to add, remove or plot records (A/R/P)?\n")
+
+    if function_type.lower() == "r" or function_type.lower() == "remove":
+        record_to_rm = input("Please type a record title to remove from record list\n")
+        removed_records = remove_record(record_to_rm)
+        
+        if removed_records == 1:
+            print(str(record_to_rm) + ' removed from wishlist and historical data cleared.')
+
+    if function_type.lower() == "p" or function_type.lower() == "plot":
+        pass
+
+    if function_type.lower() == "a" or function_type.lower() == "add":
+        pass
+
+    if function_type.lower() == "q" or function_type.lower() == "quit":
+       return  1
+
+    user_action = input('Press "r" to re-run again or any other key to escape.\n')
+
+    return main() if user_action == "r" else 0
+
+
 if __name__ == "__main__":
-    remove_record("Test Album")
+    #remove_record("Test Album")
+    main()
