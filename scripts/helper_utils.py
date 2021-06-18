@@ -10,7 +10,11 @@
 
 import os
 import pandas as pd
-
+import numpy as np
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
+import seaborn as sns
 
 def remove_record(record_title):
     """
@@ -60,6 +64,55 @@ def remove_record(record_title):
     return 1
 
 
+def plot_records(record_titles):
+    """
+    Helper function to automate plotting historical pricing data of records
+
+    params:
+    --------------------------------------------------------------------------
+    record_titles:   list of record titles to be plotted
+
+    returns:
+    --------------------------------------------------------------------------
+    plot of the historical pricing data for specified records in record_title
+    """
+
+    pd.set_option("display.max_rows", None, "display.max_columns", None, "display.expand_frame_repr", False)
+    history_data = pd.read_csv('../output_data/records_history.csv',  encoding='utf-8')
+    drop_cols = ['url', 'Artist Name']
+
+    history_data.drop(columns=drop_cols, inplace=True)
+    history_data = history_data.melt(id_vars = ['Record Title'], var_name = 'Date', value_name = 'Price')
+    history_data['Date'] = pd.to_datetime(history_data['Date']).dt.date
+    history_data = history_data[history_data['Record Title'].isin(record_titles)]
+
+    mpl.rcParams['font.family']='serif'
+    cmfont = fm.FontProperties(fname=mpl.get_data_path() + '/fonts/ttf/cmr10.ttf')
+    mpl.rcParams['font.serif']=cmfont.get_name()
+    mpl.rcParams['mathtext.fontset']='cm'
+    mpl.rcParams['text.usetex'] = True
+    #mpl.rcParams['axes.unicode_minus']=False
+
+
+    fig = plt.figure(figsize=(14,8))
+    ax = plt.subplot(111)
+    sns.lineplot(data=history_data, x='Date', y='Price', hue='Record Title')
+    
+    ax.tick_params(direction='in', length=6, width=1, colors='k', top=True, right=True)
+    ax.set_xlabel("Date", labelpad=15, fontsize=16, color="#333533");
+    ax.set_ylabel("Price (\pounds)", labelpad=16, fontsize=14, color="#333533")
+    lgd = ax.legend(loc='upper left', bbox_to_anchor=(1.05, 1), ncol=2, fancybox=True, shadow=True, title='Albums', fontsize=14, title_fontsize=15)
+    #plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
+    plt.setp(ax.get_xticklabels(), fontsize=14)
+    plt.setp(ax.get_yticklabels(), fontsize=14)
+
+    plt.title('Historical Pricing Data of Records', fontsize=15, color="#333533")
+    plt.tight_layout()
+    plt.savefig('../plots/historical_data.png', dpi=500, transparent=False, bbox_inches='tight')#, bbox_extra_artists=(lgd,))
+
+    return
+
+
 def main():
 
     function_type = input("Would you like to add, remove or plot records (A/R/P)?\n")
@@ -87,4 +140,5 @@ def main():
 
 if __name__ == "__main__":
     #remove_record("Test Album")
-    main()
+    #main()
+    plot_records(["Continuum", "Beat Tape 1", "Holy Fire", "Songs In The Key Of Life", "What Went Down", "Venice (180g Vinyl)"])
