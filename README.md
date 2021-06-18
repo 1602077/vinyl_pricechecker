@@ -6,7 +6,7 @@
 Setting up the environment with the required libraries can be easily achieved using ```conda``` as follows:
 ```
 conda env create --name web_s
-conda install -n web_s pandas selenium BeautifulSoup
+conda install -n web_s pandas selenium BeautifulSoup matplotlib seaborn
 ```
 
 The environment is activated by running ```conda activate web_s```.
