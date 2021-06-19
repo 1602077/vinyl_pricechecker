@@ -14,6 +14,8 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
+import matplotlib.dates as mdates
+from matplotlib.dates import DateFormatter
 import seaborn as sns
 
 def remove_record(record_title):
@@ -99,16 +101,18 @@ def plot_records(record_titles):
     sns.lineplot(data=history_data, x='Date', y='Price', hue='Record Title')
     
     ax.tick_params(direction='in', length=6, width=1, colors='k', top=True, right=True)
-    ax.set_xlabel("Date", labelpad=15, fontsize=16, color="#333533");
+    ax.set_xlabel("Date", labelpad=15, fontsize=16, color="#333533")
+    date_form = DateFormatter("%Y-%m-%d")
+    ax.xaxis.set_major_formatter(date_form)
+    ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=2))
     ax.set_ylabel("Price (\pounds)", labelpad=16, fontsize=14, color="#333533")
     lgd = ax.legend(loc='upper left', bbox_to_anchor=(1.05, 1), ncol=2, fancybox=True, shadow=True, title='Albums', fontsize=14, title_fontsize=15)
-    #plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
     plt.setp(ax.get_xticklabels(), fontsize=14)
     plt.setp(ax.get_yticklabels(), fontsize=14)
 
     plt.title('Historical Pricing Data of Records', fontsize=15, color="#333533")
     plt.tight_layout()
-    plt.savefig('../plots/historical_data.png', dpi=500, transparent=False, bbox_inches='tight')#, bbox_extra_artists=(lgd,))
+    plt.savefig('../plots/historical_data.png', dpi=250, transparent=False, bbox_inches='tight')
 
     return
 
@@ -125,13 +129,14 @@ def main():
             print(str(record_to_rm) + ' removed from wishlist and historical data cleared.')
 
     if function_type.lower() == "p" or function_type.lower() == "plot":
-        pass
+        records_to_plot = [item for item in input("Please input your records to plot (comma separated):\n").split(", ")]
+        plot_records(records_to_plot)
 
     if function_type.lower() == "a" or function_type.lower() == "add":
         pass
 
     if function_type.lower() == "q" or function_type.lower() == "quit":
-       return  1
+       return 1
 
     user_action = input('Press "r" to re-run again or any other key to escape.\n')
 
@@ -139,6 +144,5 @@ def main():
 
 
 if __name__ == "__main__":
-    #remove_record("Test Album")
     #main()
-    plot_records(["Continuum", "Beat Tape 1", "Holy Fire", "Songs In The Key Of Life", "What Went Down", "Venice (180g Vinyl)"])
+    plot_records(["Continuum", "Beat Tape 1", "Holy Fire", "Songs In The Key Of Life", "What Went Down", "Venice (180g Vinyl)", "Black Messiah"])
