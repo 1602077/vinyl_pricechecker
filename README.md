@@ -61,10 +61,13 @@ Type ```crontab -e``` to open the crontab editor adding the following will cue t
 ```
 Full documentation on the ```crontab``` syntax can be found [here](https://man7.org/linux/man-pages/man5/crontab.5.html), while [crontab.guru](https://crontab.guru) is a useful tool for generating ```cron``` expressions if you are new to the tool. 
 
+## Helper Utilities
+
+I have provided two helper functions inside of ```scripts/helper_utils.py``` to help with some of the common modifications to the input and output files you may wish to perform. ```remove_records()``` will remove all historical data for the input tite of a record (case sensitive) and delete the associated url from ```urls.txt.```
+
+```plot_records()``` takes a user input of a list of record titles (case sensitive) and plots their full history of prices and saves the resulting file as a png in ```/plots```.
+
+These functions  are wrapped together under a simple script that allow for the user to select whether they would like to add, remove or plot records and then type the corresponding inputs for each function.
+
 ### TODOS
-- [ ] Helper Functions
-  - [ ] Remove record from wishlist func (ideally by user inputing record title and this is removed from all output files and the url from the input file)
-  - [ ] Plotting func - allow a user to specify one or more records and plot the history of their prices
-- [ ] Update readme to reflect updates to scripts functionality, this should include all the function doc strings
 - [ ] write a ```launchd``` plist to overcome issues with running cron and selenium
-- [ ] document as to why you can't just run ```vinyl``` in ```cron```
